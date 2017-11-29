@@ -40,5 +40,14 @@ df.groupBy('Closed Date').count().orderBy('count',ascending=False).take(1)
 df.select(col('Incident Zip')).filter(col('Incident Zip').rlike('^(\d{5}(-)?(\d{4})?|[A-Z]\d[A-Z] ?\d[A-Z]\d)$')== False).show()
 
 # Check abnormal Zip Code
-df.where(length(col('Incident Zip')) > 0).select(col('Incident Zip')).filter(col('Incident Zip').rlike('^(\d{5}(-)?(\d{4})?|[A-Z]\d[A-Z] ?\d[A-Z]\d)$')==False).collect()
 df.where(length(col('Incident Zip')) > 0).select(col('Incident Zip')).filter(col('Incident Zip').rlike('^(\d{5}(-)?(\d{4})?|[A-Z]\d[A-Z] ?\d[A-Z]\d)$')==False).groupBy('Incident Zip').count().show()
+
+# Discard Columns
+drop_list = ['Facility Type', 'School Name', 'School Number', 'School Region', 'School Code', 'School Phone Number', 'School Address', 'School City', 'School State', 'School Zip']
+df = df.select([column for column in df.columns if column not in drop_list])
+
+#Coerce invalid values to normal
+df = df.withColumn('Incident Zip', when(col('Incident Zip').rlike('^(\d{5}(-)?(\d{4})?|[A-Z]\d[A-Z] ?\d[A-Z]\d)$')== False, 'N/A').otherwise(df['Incident Zip']))
+
+#Fill null values to N/A
+df = df.fillna('N/A')
