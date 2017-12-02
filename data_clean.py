@@ -1,5 +1,5 @@
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import isnan, when, count, col, length
+from pyspark.sql.functions import isnan, when, count, col, length, avg
 
 sqlContext = SQLContext(sc)
 
