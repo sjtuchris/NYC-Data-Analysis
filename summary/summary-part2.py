@@ -1,21 +1,12 @@
-from pyspark.sql import SQLContext 
+from pyspark.sql import SQLContext
 from pyspark.sql.functions import isnan, when, count, col, length, desc, unix_timestamp, from_unixtime
 
 sqlContext = SQLContext(sc)
 
 # read csv into dataframes
 df = sqlContext.read.load('20*.csv', format='com.databricks.spark.csv', header='true', inferSchema='true')
-# Discard Columns
-drop_list = ['Facility Type', 'School Name', 'School Number', 'School Region', 'School Code', 'School Phone Number', 'School Address', 'School City', 'School State', 'School Zip']
-df = df.select([column for column in df.columns if column not in drop_list])
 
-#Coerce invalid values to normal
-df = df.withColumn('Incident Zip', when(col('Incident Zip').rlike('^(\d{5}(-)?(\d{4})?|[A-Z]\d[A-Z] ?\d[A-Z]\d)$')== False, 'N/A').otherwise(df['Incident Zip']))
-
-#Fill null values to N/A
-df = df.fillna('N/A')
-
-
+# Derive new columns
 df = df.withColumn('year', col('Created Date').substr(7,4))
 df = df.withColumn('month', col('Created Date').substr(0,2))
 df = df.withColumn('day', col('Created Date').substr(0,10))
@@ -26,9 +17,9 @@ df.select('day',from_unixtime(unix_timestamp('day', 'MM/dd/yyy')).alias('date'))
 df = df.withColumn('dayUnix',from_unixtime(unix_timestamp('day', 'MM/dd/yyy')))
 
 df2 = df.groupBy('dayUnix').count().sort('dayUnix')
+
 # Export results
 df2.write.format('com.databricks.spark.csv').save('day.csv')
-
 
 # Compaint types
 complaint = df.groupBy('Complaint Type').count().sort(desc('count')).show()
@@ -52,6 +43,3 @@ df.groupBy('periodUnix').count().sort(desc('count')).show()
 df.select('periodUnix','createdDay','closedDay').sort(desc('periodUnix')).show()
 # Discard results that closed after 2017
 df.select('periodUnix','createdDay','closedDay','closedUnix').sort(desc('periodUnix')).where(col('closedUnix')<1514764800).show()
-
-
-

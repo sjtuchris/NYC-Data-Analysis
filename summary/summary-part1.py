@@ -1,3 +1,11 @@
+from pyspark.sql import SQLContext
+from pyspark.sql.functions import isnan, when, count, col, length, desc, unix_timestamp, from_unixtime
+
+sqlContext = SQLContext(sc)
+
+# read csv into dataframes
+df = sqlContext.read.load('20*.csv', format='com.databricks.spark.csv', header='true', inferSchema='true')
+
 # Group By Year
 df.withColumn('year', col('Created Date').substr(7,4)).groupBy('year').count().show()
 
