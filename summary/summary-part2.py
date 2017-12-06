@@ -18,15 +18,15 @@ df = df.withColumn('dayUnix',from_unixtime(unix_timestamp('day', 'MM/dd/yyy')))
 
 df2 = df.groupBy('dayUnix').count().sort('dayUnix')
 
-# Export results
-df2.write.format('com.databricks.spark.csv').save('day.csv')
+# # Export results
+# df2.write.format('com.databricks.spark.csv').save('day.csv')
 
 # Compaint types
 complaint = df.groupBy('Complaint Type').count().sort(desc('count')).show()
-complaint.write.format('com.databricks.spark.csv').save('complaint.csv')
+# complaint.write.format('com.databricks.spark.csv').save('complaint.csv')
 
 location = df.groupBy('Location Type').count().sort(desc('count')).show()
-location.write.format('com.databricks.spark.csv').save('location.csv')
+# location.write.format('com.databricks.spark.csv').save('location.csv')
 
 # Closed Date - Created Date
 df = df.withColumn('createdDay', col('Created Date').substr(0,10))
