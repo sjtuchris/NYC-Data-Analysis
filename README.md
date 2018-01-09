@@ -1,5 +1,6 @@
 # NYC-Data-Analysis
 Course Project for Big Data Analysis
+
 Detailed instructions can be found in BigDataAnalysisProject.pdf
 
 # Before run the spark codes, in terminal:
